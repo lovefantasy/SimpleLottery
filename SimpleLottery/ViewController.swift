@@ -12,6 +12,9 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let t = TicketPickerView(frame: CGRect.init(x: 20, y: 80, width: self.view.frame.size.width-40, height: 200) , count: 36)
+        self.view.addSubview(t)
         // Do any additional setup after loading the view, typically from a nib.
     }
 
