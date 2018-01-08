@@ -12,6 +12,8 @@ import UIKit
 class TicketPickerView: UIView {
     var delegate: TicketPickerDelegate?
     var count: Int
+    var maxAmount: Int
+    var currentAmount: Int = 0
     var numberButtons: [UIButton] = []
     var submitButton: UIButton
     var cancelButton: UIButton
@@ -22,6 +24,7 @@ class TicketPickerView: UIView {
     
     init(frame: CGRect, count: Int) {
         self.count = count
+        self.maxAmount = count / 6
         let viewSize = CGSize(width: frame.size.width, height: frame.size.height)
         let numberButtonInset = viewSize.width / 61.0
         let numberButtonSize = viewSize.width / 12.2
@@ -40,22 +43,25 @@ class TicketPickerView: UIView {
         cancelButton.setTitle("取消", for: .normal)
         
         super.init(frame: frame)
-        self.backgroundColor = #colorLiteral(red: 0.2588235438, green: 0.7568627596, blue: 0.9686274529, alpha: 1)
+        self.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
         
         for i in 0...count/10 {
-            for j in 0...(i == count/10 ? count%10 : 9) {
+            for j in 0...(i == count/10 ? count%10-1 : 9) {
                 let button = UIButton(frame: CGRect(x: numberButtonInset * CGFloat(j+1) + numberButtonSize * CGFloat(j),
                                                     y: numberButtonInset * CGFloat(i+1) + numberButtonSize * CGFloat(i),
                                                     width: numberButtonSize, height: numberButtonSize))
                 button.setTitle(String.init(format: "%d", i*10+j+1), for: .normal)
                 button.tag = 100+i*10+j+1
                 button.backgroundColor = #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
+                button.setTitleColor(#colorLiteral(red: 0.2549019754, green: 0.2745098174, blue: 0.3019607961, alpha: 1), for: .normal)
                 button.addTarget(self, action: #selector(numberButtonTapped), for: .touchUpInside)
                 numberButtons.append(button)
                 self.addSubview(button)
             }
         }
+        submitButton.addTarget(self, action: #selector(submitButtonTapped), for: .touchUpInside)
         self.addSubview(submitButton)
+        cancelButton.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
         self.addSubview(cancelButton)
         print("end")
     }
@@ -64,9 +70,40 @@ class TicketPickerView: UIView {
         if sender.isSelected {
             sender.isSelected = false
             sender.backgroundColor = #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
+            currentAmount -= 1
         } else {
-            sender.isSelected = true
-            sender.backgroundColor = #colorLiteral(red: 0.9254902005, green: 0.2352941185, blue: 0.1019607857, alpha: 1)
+            if currentAmount >= maxAmount {
+                // TODO: Alert here
+            } else {
+                sender.isSelected = true
+                sender.backgroundColor = #colorLiteral(red: 0.9254902005, green: 0.2352941185, blue: 0.1019607857, alpha: 1)
+                currentAmount += 1
+            }
         }
+    }
+    
+    @objc func submitButtonTapped(sender: UIButton) {
+        guard let d = delegate else {
+            return
+        }
+        guard currentAmount == maxAmount else {
+            // TODO: Alert here
+            return
+        }
+        var selectedNumbers: [Int] = []
+        for i in 0..<count {
+            let button = numberButtons[i]
+            if button.isSelected {
+                selectedNumbers.append(i+1)
+            }
+        }
+        d.didConfirmSelectedTicket(selectedNumbers: selectedNumbers)
+    }
+    
+    @objc func cancelButtonTapped(sender: UIButton) {
+        guard let d = delegate else {
+            return
+        }
+        d.didCanceled()
     }
 }

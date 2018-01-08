@@ -29,7 +29,7 @@ class Ticket {
         }
         
         guard priceNumbers.count == selectedNumbers.count else {
-            print("Attempted to check a ticket but the count does not match")
+            print("Attempted to check a ticket but the count does not match: %d in price, %d in ticket.", priceNumbers.count, selectedNumbers.count)
             return 0
         }
         

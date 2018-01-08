@@ -8,13 +8,27 @@
 
 import UIKit
 
-class ViewController: UIViewController {
-
+class ViewController: UIViewController, TicketPickerDelegate {
+    var ticketPickerView: TicketPickerView?
+    
+    func didConfirmSelectedTicket(selectedNumbers: [Int]) {
+        let ticket = Ticket(selectedNumbers: selectedNumbers, timeTag: Date.currentDate())
+        print("Test: %d", ticket.check(priceNumbers: [1,2,3,4,5,6]))
+        ticketPickerView!.removeFromSuperview()
+        ticketPickerView = nil
+    }
+    
+    func didCanceled() {
+        ticketPickerView!.removeFromSuperview()
+        ticketPickerView = nil
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let t = TicketPickerView(frame: CGRect.init(x: 20, y: 80, width: self.view.frame.size.width-40, height: 200) , count: 36)
-        self.view.addSubview(t)
+        ticketPickerView = TicketPickerView(frame: CGRect.init(x: 20, y: 80, width: self.view.frame.size.width-40, height: 200) , count: 36)
+        ticketPickerView!.delegate = self
+        self.view.addSubview(ticketPickerView!)
         // Do any additional setup after loading the view, typically from a nib.
     }
 
