@@ -10,6 +10,8 @@ import Foundation
 
 class Ticket {
     private var selectedNumbers: [Int]
+    private var matchedIndex: [Int] = []
+    private var priceNumbers: [Int]?
     private var timeTag: Int32
     public var isChecked: Bool = false
     
@@ -33,6 +35,7 @@ class Ticket {
             return 0
         }
         
+        self.priceNumbers = priceNumbers
         var match: [Int] = []
         var index1 = 0, index2 = 0
         while index1 < selectedNumbers.count && index2 < priceNumbers.count {
@@ -42,6 +45,7 @@ class Ticket {
                 index2 += 1
             } else {
                 match.append(selectedNumbers[index1])
+                matchedIndex.append(index1)
                 index1 += 1
                 index2 += 1
             }

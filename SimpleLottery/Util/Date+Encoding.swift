@@ -22,4 +22,17 @@ extension Date {
             return 0
         }
     }
+    
+    static func currentDayTime() -> (hour: Int, minute: Int, second: Int) {
+        let currentDateTime = Date()
+        let userCalendar = Calendar.current
+        let requestedComponents: Set<Calendar.Component> = [.hour, .minute, .second]
+        let dateTimeComponents = userCalendar.dateComponents(requestedComponents, from: currentDateTime)
+        
+        if let hour = dateTimeComponents.hour, let minute = dateTimeComponents.minute, let second = dateTimeComponents.second {
+            return (hour, minute, second)
+        } else {
+            return (-1, -1, -1)
+        }
+    }
 }
