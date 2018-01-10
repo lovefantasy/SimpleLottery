@@ -17,9 +17,10 @@
 		6A5B6DB71FFA7D7C00F237C1 /* TicketPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A5B6DB61FFA7D7C00F237C1 /* TicketPickerView.swift */; };
 		6A5B6DB91FFA7DFA00F237C1 /* TicketPickerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A5B6DB81FFA7DFA00F237C1 /* TicketPickerDelegate.swift */; };
 		6E972A112004AB6800C4FD8F /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E972A102004AB6800C4FD8F /* Player.swift */; };
-		6E972A172004B19E00C4FD8F /* ListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E972A162004B19E00C4FD8F /* ListViewModel.swift */; };
 		6E972A192004B1AA00C4FD8F /* ListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E972A182004B1AA00C4FD8F /* ListCell.swift */; };
 		6E972A1B2004B1BE00C4FD8F /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E972A1A2004B1BE00C4FD8F /* MainView.swift */; };
+		6E972A1F2005F8F000C4FD8F /* UIAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6E972A1E2005F8F000C4FD8F /* UIAssets.xcassets */; };
+		6E972A212005FCD500C4FD8F /* Constant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E972A202005FCD500C4FD8F /* Constant.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,9 +36,10 @@
 		6A5B6DB61FFA7D7C00F237C1 /* TicketPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TicketPickerView.swift; sourceTree = "<group>"; };
 		6A5B6DB81FFA7DFA00F237C1 /* TicketPickerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TicketPickerDelegate.swift; sourceTree = "<group>"; };
 		6E972A102004AB6800C4FD8F /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
-		6E972A162004B19E00C4FD8F /* ListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewModel.swift; sourceTree = "<group>"; };
 		6E972A182004B1AA00C4FD8F /* ListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCell.swift; sourceTree = "<group>"; };
 		6E972A1A2004B1BE00C4FD8F /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		6E972A1E2005F8F000C4FD8F /* UIAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = UIAssets.xcassets; sourceTree = "<group>"; };
+		6E972A202005FCD500C4FD8F /* Constant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constant.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,6 +80,7 @@
 				6A5B6DA01FFA2B3B00F237C1 /* ViewController.swift */,
 				6A5B6DA21FFA2B3B00F237C1 /* Main.storyboard */,
 				6A5B6DA51FFA2B3B00F237C1 /* Assets.xcassets */,
+				6E972A1E2005F8F000C4FD8F /* UIAssets.xcassets */,
 				6A5B6DA71FFA2B3B00F237C1 /* LaunchScreen.storyboard */,
 				6A5B6DAA1FFA2B3B00F237C1 /* Info.plist */,
 			);
@@ -97,6 +100,7 @@
 			isa = PBXGroup;
 			children = (
 				6A5B6DB41FFA2F4100F237C1 /* Date+Encoding.swift */,
+				6E972A202005FCD500C4FD8F /* Constant.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -114,7 +118,6 @@
 			isa = PBXGroup;
 			children = (
 				6E972A1A2004B1BE00C4FD8F /* MainView.swift */,
-				6E972A162004B19E00C4FD8F /* ListViewModel.swift */,
 				6E972A182004B1AA00C4FD8F /* ListCell.swift */,
 			);
 			path = Core;
@@ -181,6 +184,7 @@
 			files = (
 				6A5B6DA91FFA2B3B00F237C1 /* LaunchScreen.storyboard in Resources */,
 				6A5B6DA61FFA2B3B00F237C1 /* Assets.xcassets in Resources */,
+				6E972A1F2005F8F000C4FD8F /* UIAssets.xcassets in Resources */,
 				6A5B6DA41FFA2B3B00F237C1 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -199,8 +203,8 @@
 				6A5B6DB31FFA2DD900F237C1 /* Ticket.swift in Sources */,
 				6E972A112004AB6800C4FD8F /* Player.swift in Sources */,
 				6A5B6DB51FFA2F4100F237C1 /* Date+Encoding.swift in Sources */,
+				6E972A212005FCD500C4FD8F /* Constant.swift in Sources */,
 				6E972A192004B1AA00C4FD8F /* ListCell.swift in Sources */,
-				6E972A172004B19E00C4FD8F /* ListViewModel.swift in Sources */,
 				6A5B6D9F1FFA2B3B00F237C1 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

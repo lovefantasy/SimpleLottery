@@ -12,7 +12,6 @@ import UIKit
 class TicketPickerView: UIView {
     var delegate: TicketPickerDelegate?
     var count: Int
-    var maxAmount: Int
     var currentAmount: Int = 0
     var numberButtons: [UIButton] = []
     var submitButton: UIButton
@@ -24,7 +23,6 @@ class TicketPickerView: UIView {
     
     init(frame: CGRect, count: Int) {
         self.count = count
-        self.maxAmount = count / 6
         let viewSize = CGSize(width: frame.size.width, height: frame.size.height)
         let numberButtonInset = viewSize.width / 61.0
         let numberButtonSize = viewSize.width / 12.2
@@ -72,7 +70,7 @@ class TicketPickerView: UIView {
             sender.backgroundColor = #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
             currentAmount -= 1
         } else {
-            if currentAmount >= maxAmount {
+            if currentAmount >= Constant.priceCount {
                 // TODO: Alert here
             } else {
                 sender.isSelected = true
@@ -86,7 +84,7 @@ class TicketPickerView: UIView {
         guard let d = delegate else {
             return
         }
-        guard currentAmount == maxAmount else {
+        guard currentAmount == Constant.priceCount else {
             // TODO: Alert here
             return
         }

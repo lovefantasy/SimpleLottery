@@ -9,13 +9,13 @@
 import Foundation
 
 class Ticket {
-    private var selectedNumbers: [Int]
-    private var matchedIndex: [Int] = []
-    private var priceNumbers: [Int]?
-    private var timeTag: Int32
-    public var isChecked: Bool = false
+    var selectedNumbers: [Int]
+    var matchedIndex: [Int] = []
+    var priceNumbers: [Int]?
+    var timeTag: Int32
+    var isChecked: Bool = false
     
-    public var timeString: String {
+    var timeString: String {
         return String.init(format: "%d/%d/%d", timeTag/10000, (timeTag%10000)/100, timeTag%100)
     }
     

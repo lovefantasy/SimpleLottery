@@ -9,21 +9,16 @@
 import Foundation
 
 class Player {
-    public var balance: Int
-    private var tickets: [Ticket]
+    var balance: Int
+    var tickets: [Ticket]
     
     init() {
         self.balance = 0
         self.tickets = []
     }
     
-    func addTicket(_ ticket: Ticket) {
-        tickets.append(ticket)
-    }
-    
-    func addBalance(_ value: Int) {
-        balance += value
-    }
+    func addTicket(_ ticket: Ticket) { tickets.append(ticket) }
+    func addBalance(_ value: Int) { balance += value }
     
     func getActiveTicketList() -> [Ticket] {
         return tickets.enumerated().flatMap { $0.element.isChecked ? nil : $0.element }
