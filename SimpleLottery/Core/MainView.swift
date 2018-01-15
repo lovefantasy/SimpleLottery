@@ -9,10 +9,11 @@
 import Foundation
 import UIKit
 
-class MainView: UIView, UITableViewDataSource, UITableViewDelegate {
+class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPickerDelegate {
     var model: Player
     var heartbeat = Timer()
     var tableState = true
+    var ticketPickerView: TicketPickerView?
     
     // MARK: UI
     lazy var infoLabel: UILabel = {
@@ -20,6 +21,12 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate {
         label.textColor = #colorLiteral(red: 0.9254902005, green: 0.2352941185, blue: 0.1019607857, alpha: 1)
         label.textAlignment = .center
         return label
+    }()
+    lazy var buyButton: UIButton = {
+        let button = UIButton(frame: CGRect.init(x: 20, y: 120, width: 140, height: 30))
+        button.setTitle("買一張", for: .normal)
+        button.setTitleColor(#colorLiteral(red: 0.1764705926, green: 0.4980392158, blue: 0.7568627596, alpha: 1), for: .normal)
+        return button
     }()
     lazy var ticketSwitch: UIButton = {
         let button = UIButton(frame: CGRect.init(x: 0, y: self.frame.size.height * 0.4 - 30, width: self.frame.size.width / 2.0, height: 30))
@@ -67,12 +74,20 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate {
         self.addSubview(infoLabel)
         self.addSubview(ticketSwitch)
         self.addSubview(historySwitch)
+        self.addSubview(buyButton)
         
         ticketSwitch.isSelected = true
         ticketSwitch.addTarget(self, action: #selector(switchTableView(_:)), for: .touchUpInside)
         historySwitch.addTarget(self, action: #selector(switchTableView(_:)), for: .touchUpInside)
+        buyButton.addTarget(self, action: #selector(popTicketPicker), for: .touchUpInside)
         
         heartbeat = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(timerHeartbeat), userInfo: nil, repeats: true)
+    }
+    
+    @objc func popTicketPicker() {
+        ticketPickerView = TicketPickerView(frame: CGRect.init(x: 10, y: 50, width: self.frame.size.width-20, height: (self.frame.size.width-20) * 0.6), count: 36)
+        ticketPickerView!.delegate = self
+        self.addSubview(ticketPickerView!)
     }
     
     @objc func timerHeartbeat() {
@@ -125,8 +140,8 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate {
             let tickets = model.getTicketHistory()
             cell.serialLabel.text = String(indexPath.row)
             cell.setupLabelTitle(tickets[indexPath.row])
-            cell.checkButton.setTitle("兌獎", for: .normal)
-            cell.checkButton.setTitleColor(#colorLiteral(red: 0.9372549057, green: 0.3490196168, blue: 0.1921568662, alpha: 1), for: .normal)
+            cell.checkButton.setTitle(tickets[indexPath.row].timeString, for: .normal)
+            cell.checkButton.setTitleColor(#colorLiteral(red: 0.1764705926, green: 0.4980392158, blue: 0.7568627596, alpha: 1), for: .normal)
             return cell
         } else {
             let cell = tableView.dequeueReusableCell(withIdentifier: "ticketCell") as! ListCell
@@ -137,5 +152,18 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate {
             cell.checkButton.setTitleColor(#colorLiteral(red: 0.9372549057, green: 0.3490196168, blue: 0.1921568662, alpha: 1), for: .normal)
             return cell
         }
+    }
+    
+    func didConfirmSelectedTicket(selectedNumbers: [Int]) {
+        let ticket = Ticket(selectedNumbers: selectedNumbers, timeTag: Date.currentDate())
+        model.addTicket(ticket)
+        update()
+        ticketPickerView!.removeFromSuperview()
+        ticketPickerView = nil
+    }
+    
+    func didCanceled() {
+        ticketPickerView!.removeFromSuperview()
+        ticketPickerView = nil
     }
 }

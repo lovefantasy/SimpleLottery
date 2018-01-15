@@ -8,6 +8,11 @@
 
 import Foundation
 
+infix operator ^^ : MultiplicationPrecedence
+func ^^ (radix: Int, power: Int) -> Int {
+    return Int(pow(Double(radix), Double(power)))
+}
+
 struct Constant {
     static let priceCount: Int = 6
 }
