@@ -61,7 +61,6 @@ class TicketPickerView: UIView {
         self.addSubview(submitButton)
         cancelButton.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
         self.addSubview(cancelButton)
-        print("end")
     }
     
     @objc func numberButtonTapped(sender: UIButton) {

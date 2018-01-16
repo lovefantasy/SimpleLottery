@@ -11,7 +11,8 @@ import UIKit
 
 class ListCell: UITableViewCell {
     lazy var serialLabel: UILabel = { return UILabel(frame: CGRect(x: 10, y: 25, width: 30, height: 30)) }()
-    lazy var checkButton: UIButton = { return UIButton(frame: CGRect(x: 230, y: 25, width: 80, height: 30)) }()
+    lazy var checkButton: UIButton = { return UIButton(frame: CGRect(x: 230, y: 10, width: self.frame.size.width - 240, height: 30)) }()
+    lazy var infoLabel: UILabel = { return UILabel(frame: CGRect(x: 230, y: 40, width: self.frame.size.width - 240, height: 30)) }()
     var ticketLabels: [UILabel] = []
     var priceLabels: [UILabel] = []
     
@@ -28,16 +29,17 @@ class ListCell: UITableViewCell {
     func commonInit() {
         self.contentView.addSubview(serialLabel)
         self.contentView.addSubview(checkButton)
+        self.contentView.addSubview(infoLabel)
         
         for i in 0..<Constant.priceCount {
-            let label = UILabel(frame: CGRect(x: 50 + 30 * CGFloat(i), y: 10, width: 30, height: 30))
+            let label = UILabel(frame: CGRect(x: 40 + 30 * CGFloat(i), y: 10, width: 30, height: 30))
             setupLabelAttr(label, false)
             ticketLabels.append(label)
             self.contentView.addSubview(label)
         }
         
         for i in 0..<Constant.priceCount {
-            let label = UILabel(frame: CGRect(x: 50 + 30 * CGFloat(i), y: 40, width: 30, height: 30))
+            let label = UILabel(frame: CGRect(x: 40 + 30 * CGFloat(i), y: 40, width: 30, height: 30))
             setupLabelAttr(label, true)
             priceLabels.append(label)
             self.contentView.addSubview(label)

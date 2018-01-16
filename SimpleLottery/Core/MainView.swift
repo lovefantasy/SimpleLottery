@@ -17,7 +17,13 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
     
     // MARK: UI
     lazy var infoLabel: UILabel = {
-        let label = UILabel(frame: CGRect.init(x: self.frame.size.width/2 - 90, y: 80, width: 180, height: 30))
+        let label = UILabel(frame: CGRect.init(x: self.frame.size.width - 200, y: 80, width: 180, height: 30))
+        label.textColor = #colorLiteral(red: 0.7254902124, green: 0.4784313738, blue: 0.09803921729, alpha: 1)
+        label.textAlignment = .center
+        return label
+    }()
+    lazy var goldLabel: UILabel = {
+        let label = UILabel(frame: CGRect.init(x: self.frame.size.width - 200, y: 120, width: 180, height: 30))
         label.textColor = #colorLiteral(red: 0.9254902005, green: 0.2352941185, blue: 0.1019607857, alpha: 1)
         label.textAlignment = .center
         return label
@@ -61,6 +67,7 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
         return tv
     }()
     
+    // MARK: Initializer
     required init?(coder aDecoder: NSCoder) {
         fatalError("init with coder is not implemented")
     }
@@ -72,9 +79,12 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
         self.addSubview(historyTableView)
         self.addSubview(ticketTableView)
         self.addSubview(infoLabel)
+        self.addSubview(goldLabel)
         self.addSubview(ticketSwitch)
         self.addSubview(historySwitch)
         self.addSubview(buyButton)
+        
+        goldLabel.text = String.init(format: "存款： %d", model.balance)
         
         ticketSwitch.isSelected = true
         ticketSwitch.addTarget(self, action: #selector(switchTableView(_:)), for: .touchUpInside)
@@ -85,6 +95,10 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
     }
     
     @objc func popTicketPicker() {
+        guard model.balance >= Constant.ticketPrice else {
+            print("balance not enough")
+            return
+        }
         ticketPickerView = TicketPickerView(frame: CGRect.init(x: 10, y: 50, width: self.frame.size.width-20, height: (self.frame.size.width-20) * 0.6), count: 36)
         ticketPickerView!.delegate = self
         self.addSubview(ticketPickerView!)
@@ -92,7 +106,7 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
     
     @objc func timerHeartbeat() {
         let time = Date.currentDayTime()
-        infoLabel.text = String.init(format: "下次開獎 %d:%2d:%2d", (24-time.hour)%24, (60-time.minute)%60, (60-time.second)%60)
+        infoLabel.text = String.init(format: "下次開獎 %d:%02d:%02d", (24-time.hour)%24, (60-time.minute)%60, (60-time.second)%60)
     }
     
     @objc func switchTableView(_ sender: UIButton) {
@@ -116,7 +130,23 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
         })
     }
     
+    @objc func checkButtonTapped(_ sender: UIButton) {
+        checkTicket(index: sender.tag - 10000)
+    }
+    
+    func checkTicket(index: Int) {
+        let tickets = model.getActiveTicketList()
+        guard index < tickets.count else {
+            print("attempt to check index: \(index), but only \(tickets.count) tickets available")
+            return
+        }
+        let matched = tickets[index].check(priceNumbers: Ticket.generateRandomNumber(maxValue: 36, count: 6))
+        model.addBalance(Constant.ticketReward[matched])
+        update()
+    }
+    
     func update() {
+        goldLabel.text = String.init(format: "存款： %d", model.balance)
         historyTableView.reloadData()
         ticketTableView.reloadData()
     }
@@ -139,24 +169,32 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
             let cell = tableView.dequeueReusableCell(withIdentifier: "historyCell") as! ListCell
             let tickets = model.getTicketHistory()
             cell.serialLabel.text = String(indexPath.row)
+            cell.infoLabel.text = String.init(format: "中獎 %d 元", Constant.ticketReward[tickets[indexPath.row].matchedIndex.count])
             cell.setupLabelTitle(tickets[indexPath.row])
             cell.checkButton.setTitle(tickets[indexPath.row].timeString, for: .normal)
             cell.checkButton.setTitleColor(#colorLiteral(red: 0.1764705926, green: 0.4980392158, blue: 0.7568627596, alpha: 1), for: .normal)
+            cell.checkButton.isEnabled = false
             return cell
         } else {
             let cell = tableView.dequeueReusableCell(withIdentifier: "ticketCell") as! ListCell
             let tickets = model.getActiveTicketList()
             cell.serialLabel.text = String(indexPath.row)
+            cell.infoLabel.text = tickets[indexPath.row].timeValid ? "可以對獎" : "尚未開獎"
             cell.setupLabelTitle(tickets[indexPath.row])
             cell.checkButton.setTitle("兌獎", for: .normal)
             cell.checkButton.setTitleColor(#colorLiteral(red: 0.9372549057, green: 0.3490196168, blue: 0.1921568662, alpha: 1), for: .normal)
+            // cell.checkButton.isEnabled = tickets[indexPath.row].timeValid
+            cell.checkButton.tag = 10000 + indexPath.row
+            cell.checkButton.addTarget(self, action: #selector(checkButtonTapped(_:)), for: .touchUpInside)
             return cell
         }
     }
     
+    // MARK: TicketPickerDelegate
     func didConfirmSelectedTicket(selectedNumbers: [Int]) {
         let ticket = Ticket(selectedNumbers: selectedNumbers, timeTag: Date.currentDate())
         model.addTicket(ticket)
+        model.addBalance(-Constant.ticketPrice)
         update()
         ticketPickerView!.removeFromSuperview()
         ticketPickerView = nil

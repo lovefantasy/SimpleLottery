@@ -15,6 +15,21 @@ class DataLoader {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let context = appDelegate.persistentContainer.viewContext
         
+        let request = NSFetchRequest<NSFetchRequestResult> (entityName: "Tickets")
+        request.returnsObjectsAsFaults = false
+        request.predicate = NSPredicate(format: "selectedNum == %ld AND timeTag == %d", ticket.hashedSelectedNumbers, ticket.timeTag)
+        
+        do {
+            let result = try context.fetch(request)
+            guard result.count == 0 else {
+                print("unique ticket pair already exist in database:")
+                ticket.dumpDebugInfo()
+                return
+            }
+        } catch {
+            print("add ticket failed at fetching stage")
+        }
+        
         let entity = NSEntityDescription.entity(forEntityName: "Tickets", in: context)
         let newTicket = NSManagedObject(entity: entity!, insertInto: context)
         
@@ -33,7 +48,43 @@ class DataLoader {
         }
     }
     
-    static func fetchTickets() {
+    static func updateTicket(ticket: Ticket) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let context = appDelegate.persistentContainer.viewContext
+        
+        let request = NSFetchRequest<NSFetchRequestResult> (entityName: "Tickets")
+        request.returnsObjectsAsFaults = false
+        request.predicate = NSPredicate(format: "selectedNum == %ld AND timeTag == %d", ticket.hashedSelectedNumbers, ticket.timeTag)
+        
+        do {
+            let result = try context.fetch(request)
+            if result.count == 0 {
+                print("ticket to be updated does not exist in database")
+                print("predicate: \(ticket.hashedSelectedNumbers), \(ticket.timeTag)")
+            } else {
+                for data in result as! [NSManagedObject] {
+                    data.setValue(ticket.timeTag, forKey: "timeTag")
+                    data.setValue(ticket.hashedSelectedNumbers, forKey: "selectedNum")
+                    data.setValue(ticket.isChecked, forKey: "isChecked")
+                    if ticket.isChecked {
+                        data.setValue(ticket.hashedMatchedIndex, forKey: "matchedIndex")
+                        data.setValue(ticket.hashedPriceNumbers, forKey: "priceNum")
+                    }
+                }
+            }
+            
+            do {
+                try context.save()
+            } catch {
+                print("update ticket failed at saving stage")
+            }
+        } catch {
+            print("update ticket failed at fetching stage")
+        }
+    }
+    
+    static func fetchTickets() -> [Ticket] {
+        var tickets: [Ticket] = []
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let context = appDelegate.persistentContainer.viewContext
         
@@ -47,6 +98,7 @@ class DataLoader {
             if result.count == 0 {
                 print("database is null now")
             } else {
+                print("fetched \(result.count) ticket(s) in database")
                 for data in result as! [NSManagedObject] {
                     let t = data.value(forKey: "timeTag") as! Int32
                     let sn = data.value(forKey: "selectedNum") as! Int64
@@ -55,11 +107,13 @@ class DataLoader {
                     let mi = data.value(forKey: "matchedIndex") as! Int32
                     
                     let ticket = Ticket(hashedSelectedNumbers: sn, hashedPriceNumbers: pn, hashedMatchedIndex: mi, timeTag: t, isChecked: chk)
-                    ticket.dumpDebugInfo()
+                    tickets.append(ticket)
                 }
             }
         } catch {
-            print("Failed")
+            print("failed to fetch tickets")
         }
+        
+        return tickets
     }
 }

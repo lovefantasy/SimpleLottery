@@ -19,6 +19,11 @@ class Ticket {
         return String.init(format: "%d/%d/%d", timeTag/10000, (timeTag%10000)/100, timeTag%100)
     }
     
+    var timeValid: Bool {
+        let now = Date.currentDate()
+        return now > timeTag
+    }
+    
     var hashedPriceNumbers: Int64 {
         var r: Int64 = 0
         guard let p = priceNumbers else {
@@ -46,7 +51,7 @@ class Ticket {
         return r
     }
     
-    init(selectedNumbers: [Int], timeTag: Int32) {
+    init(selectedNumbers: [Int], timeTag: Int32 = Date.currentDate()) {
         self.selectedNumbers = selectedNumbers
         self.timeTag = timeTag
     }
@@ -93,7 +98,7 @@ class Ticket {
             return 0
         }
         
-        self.priceNumbers = priceNumbers
+        self.priceNumbers = priceNumbers.sorted { $1 > $0 }
         var match: [Int] = []
         var index1 = 0, index2 = 0
         while index1 < selectedNumbers.count && index2 < priceNumbers.count {
@@ -110,6 +115,7 @@ class Ticket {
         }
         
         isChecked = true
+        DataLoader.updateTicket(ticket: self)
         return match.count
     }
     
