@@ -51,7 +51,7 @@ class ListCell: UITableViewCell {
             ticketLabels[i].text = String(ticket.selectedNumbers[i])
             priceLabels[i].text = ticket.isChecked ? String(ticket.priceNumbers![i]) : "?"
             
-            if ticket.isChecked {
+            if ticket.isChecked && ticket.matchedIndex.count > 0 {
                 for k in ticket.matchedIndex {
                     ticketLabels[k].backgroundColor = #colorLiteral(red: 0.9764705896, green: 0.850980401, blue: 0.5490196347, alpha: 1)
                 }

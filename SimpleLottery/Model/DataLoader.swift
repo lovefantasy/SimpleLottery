@@ -107,6 +107,7 @@ class DataLoader {
                     let mi = data.value(forKey: "matchedIndex") as! Int32
                     
                     let ticket = Ticket(hashedSelectedNumbers: sn, hashedPriceNumbers: pn, hashedMatchedIndex: mi, timeTag: t, isChecked: chk)
+                    ticket.dumpDebugInfo()
                     tickets.append(ticket)
                 }
             }

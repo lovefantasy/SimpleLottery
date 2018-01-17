@@ -14,6 +14,7 @@ func ^^ (radix: Int, power: Int) -> Int {
 }
 
 struct Constant {
+    static let maxNumber: Int = 36
     static let priceCount: Int = 6
     static let ticketPrice: Int = 50
     static let ticketReward: [Int] = [0, 20, 50, 300, 1680, 16800, 666666]

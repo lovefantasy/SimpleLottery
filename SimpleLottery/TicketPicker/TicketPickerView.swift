@@ -16,12 +16,13 @@ class TicketPickerView: UIView {
     var numberButtons: [UIButton] = []
     var submitButton: UIButton
     var cancelButton: UIButton
+    var randomButton: UIButton
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init with coder is not implemented!")
     }
     
-    init(frame: CGRect, count: Int) {
+    init(frame: CGRect, count: Int = Constant.maxNumber) {
         self.count = count
         let viewSize = CGSize(width: frame.size.width, height: frame.size.height)
         let numberButtonInset = viewSize.width / 61.0
@@ -32,13 +33,18 @@ class TicketPickerView: UIView {
             print("bad width/height ratio while initializing ticket picker, this may result glitched UI.")
         }
         
-        let functionButtonWidth = viewSize.width / 2.0 - 30.0
+        let functionButtonWidth = (viewSize.width - 80.0) / 3.0
         let functionButtonHeight = remainingHeight * 0.8
         
-        submitButton = UIButton(frame: CGRect(x: 20.0, y: viewSize.height - remainingHeight * 0.9, width: functionButtonWidth, height: functionButtonHeight))
+        randomButton = UIButton(frame: CGRect(x: 20.0, y: viewSize.height - remainingHeight * 0.9, width: functionButtonWidth, height: functionButtonHeight))
+        randomButton.setTitle("隨機選", for: .normal)
+        randomButton.setTitleColor(#colorLiteral(red: 0.1764705926, green: 0.4980392158, blue: 0.7568627596, alpha: 1), for: .normal)
+        submitButton = UIButton(frame: CGRect(x: 40.0 + functionButtonWidth, y: viewSize.height - remainingHeight * 0.9, width: functionButtonWidth, height: functionButtonHeight))
         submitButton.setTitle("送出", for: .normal)
-        cancelButton = UIButton(frame: CGRect(x: viewSize.width / 2.0 + 10.0, y: viewSize.height - remainingHeight * 0.9, width: functionButtonWidth, height: functionButtonHeight))
+        submitButton.setTitleColor(#colorLiteral(red: 0.1764705926, green: 0.4980392158, blue: 0.7568627596, alpha: 1), for: .normal)
+        cancelButton = UIButton(frame: CGRect(x: 60.0 + functionButtonWidth * 2, y: viewSize.height - remainingHeight * 0.9, width: functionButtonWidth, height: functionButtonHeight))
         cancelButton.setTitle("取消", for: .normal)
+        cancelButton.setTitleColor(#colorLiteral(red: 0.9254902005, green: 0.2352941185, blue: 0.1019607857, alpha: 1), for: .normal)
         
         super.init(frame: frame)
         self.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
@@ -57,6 +63,8 @@ class TicketPickerView: UIView {
                 self.addSubview(button)
             }
         }
+        randomButton.addTarget(self, action: #selector(randomButtonTapped), for: .touchUpInside)
+        self.addSubview(randomButton)
         submitButton.addTarget(self, action: #selector(submitButtonTapped), for: .touchUpInside)
         self.addSubview(submitButton)
         cancelButton.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
@@ -102,5 +110,20 @@ class TicketPickerView: UIView {
             return
         }
         d.didCanceled()
+    }
+    
+    @objc func randomButtonTapped(sender: UIButton) {
+        let random = Ticket.generateRandomNumber(maxValue: Constant.maxNumber, count: Constant.priceCount)
+        
+        var index = 0
+        while currentAmount < Constant.priceCount {
+            let button = numberButtons[random[index]-1]
+            if !button.isSelected {
+                button.isSelected = true
+                button.backgroundColor = #colorLiteral(red: 0.9254902005, green: 0.2352941185, blue: 0.1019607857, alpha: 1)
+                currentAmount += 1
+            }
+            index += 1
+        }
     }
 }

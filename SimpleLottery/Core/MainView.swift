@@ -95,11 +95,11 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
     }
     
     @objc func popTicketPicker() {
-        guard model.balance >= Constant.ticketPrice else {
-            print("balance not enough")
-            return
-        }
-        ticketPickerView = TicketPickerView(frame: CGRect.init(x: 10, y: 50, width: self.frame.size.width-20, height: (self.frame.size.width-20) * 0.6), count: 36)
+//        guard model.balance >= Constant.ticketPrice else {
+//            print("balance not enough")
+//            return
+//        }
+        ticketPickerView = TicketPickerView(frame: CGRect.init(x: 10, y: 50, width: self.frame.size.width-20, height: (self.frame.size.width-20) * 0.6))
         ticketPickerView!.delegate = self
         self.addSubview(ticketPickerView!)
     }
@@ -140,7 +140,7 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
             print("attempt to check index: \(index), but only \(tickets.count) tickets available")
             return
         }
-        let matched = tickets[index].check(priceNumbers: Ticket.generateRandomNumber(maxValue: 36, count: 6))
+        let matched = tickets[index].check(priceNumbers: Ticket.generateRandomNumber(maxValue: Constant.maxNumber, count: Constant.priceCount))
         model.addBalance(Constant.ticketReward[matched])
         update()
     }
@@ -170,6 +170,7 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
             let tickets = model.getTicketHistory()
             cell.serialLabel.text = String(indexPath.row)
             cell.infoLabel.text = String.init(format: "中獎 %d 元", Constant.ticketReward[tickets[indexPath.row].matchedIndex.count])
+            cell.infoLabel.sizeToFit()
             cell.setupLabelTitle(tickets[indexPath.row])
             cell.checkButton.setTitle(tickets[indexPath.row].timeString, for: .normal)
             cell.checkButton.setTitleColor(#colorLiteral(red: 0.1764705926, green: 0.4980392158, blue: 0.7568627596, alpha: 1), for: .normal)
@@ -180,6 +181,7 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
             let tickets = model.getActiveTicketList()
             cell.serialLabel.text = String(indexPath.row)
             cell.infoLabel.text = tickets[indexPath.row].timeValid ? "可以對獎" : "尚未開獎"
+            cell.infoLabel.sizeToFit()
             cell.setupLabelTitle(tickets[indexPath.row])
             cell.checkButton.setTitle("兌獎", for: .normal)
             cell.checkButton.setTitleColor(#colorLiteral(red: 0.9372549057, green: 0.3490196168, blue: 0.1921568662, alpha: 1), for: .normal)

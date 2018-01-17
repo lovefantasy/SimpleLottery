@@ -30,7 +30,7 @@ class Ticket {
             return 0
         }
         for i in 0..<p.count {
-            r += Int64(p[i]) * Int64(36 ^^ i)
+            r += Int64(p[i]) * Int64(Constant.maxNumber ^^ i)
         }
         return r
     }
@@ -38,7 +38,7 @@ class Ticket {
     var hashedSelectedNumbers: Int64 {
         var r: Int64 = 0
         for i in 0..<selectedNumbers.count {
-            r += Int64(selectedNumbers[i]) * Int64(36 ^^ i)
+            r += Int64(selectedNumbers[i]) * Int64(Constant.maxNumber ^^ i)
         }
         return r
     }
@@ -46,7 +46,7 @@ class Ticket {
     var hashedMatchedIndex: Int32 {
         var r: Int32 = 0
         for i in 0..<matchedIndex.count {
-            r += Int32(matchedIndex[i]) * Int32(6 ^^ i)
+            r += Int32(matchedIndex[i]) * Int32(Constant.priceCount ^^ i)
         }
         return r
     }
@@ -63,26 +63,26 @@ class Ticket {
         
         var sn = hashedSelectedNumbers
         while sn > 1 {
-            let num = (sn - 1) % 36 + 1
+            let num = (sn - 1) % Int64(Constant.maxNumber) + 1
             selectedNumbers.append(Int(num))
-            sn = sn / 36
+            sn = sn / Int64(Constant.maxNumber)
         }
         
         if isChecked {
             var pn = hashedPriceNumbers
             var pa: [Int] = []
             while pn > 1 {
-                let num = (pn - 1) % 36 + 1
+                let num = (pn - 1) % Int64(Constant.maxNumber) + 1
                 pa.append(Int(num))
-                pn = pn / 36
+                pn = pn / Int64(Constant.maxNumber)
             }
             priceNumbers = pa
             
             var mi = hashedMatchedIndex
             while mi > 1 {
-                let num = mi % 6
+                let num = mi % Int32(Constant.priceCount)
                 matchedIndex.append(Int(num))
-                mi = mi / 6
+                mi = mi / Int32(Constant.priceCount)
             }
         }
     }
@@ -101,10 +101,10 @@ class Ticket {
         self.priceNumbers = priceNumbers.sorted { $1 > $0 }
         var match: [Int] = []
         var index1 = 0, index2 = 0
-        while index1 < selectedNumbers.count && index2 < priceNumbers.count {
-            if selectedNumbers[index1] < priceNumbers[index2] {
+        while index1 < selectedNumbers.count && index2 < self.priceNumbers!.count {
+            if selectedNumbers[index1] < self.priceNumbers![index2] {
                 index1 += 1
-            } else if selectedNumbers[index1] > priceNumbers[index2] {
+            } else if selectedNumbers[index1] > self.priceNumbers![index2] {
                 index2 += 1
             } else {
                 match.append(selectedNumbers[index1])
@@ -135,6 +135,13 @@ class Ticket {
                 pnString.append(" ")
             }
             print(pnString)
+            
+            var miString: String = "Matched Index:"
+            for i in 0..<matchedIndex.count {
+                miString.append(String(matchedIndex[i]))
+                miString.append(" ")
+            }
+            print(miString)
         }
         print("====INFO PER TICKET DUMP END====")
     }
