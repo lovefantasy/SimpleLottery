@@ -33,14 +33,12 @@ class ListCell: UITableViewCell {
         
         for i in 0..<Constant.priceCount {
             let label = UILabel(frame: CGRect(x: 40 + 30 * CGFloat(i), y: 10, width: 30, height: 30))
-            setupLabelAttr(label, false)
             ticketLabels.append(label)
             self.contentView.addSubview(label)
         }
         
         for i in 0..<Constant.priceCount {
             let label = UILabel(frame: CGRect(x: 40 + 30 * CGFloat(i), y: 40, width: 30, height: 30))
-            setupLabelAttr(label, true)
             priceLabels.append(label)
             self.contentView.addSubview(label)
         }
@@ -50,6 +48,8 @@ class ListCell: UITableViewCell {
         for i in 0..<Constant.priceCount {
             ticketLabels[i].text = String(ticket.selectedNumbers[i])
             priceLabels[i].text = ticket.isChecked ? String(ticket.priceNumbers![i]) : "?"
+            setupLabelAttr(ticketLabels[i], false)
+            setupLabelAttr(priceLabels[i], true)
             
             if ticket.isChecked && ticket.matchedIndex.count > 0 {
                 for k in ticket.matchedIndex {

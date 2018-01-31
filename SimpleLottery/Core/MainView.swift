@@ -9,11 +9,12 @@
 import Foundation
 import UIKit
 
-class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPickerDelegate {
+class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPickerDelegate, CheckDelegate {
     var model: Player
     var heartbeat = Timer()
     var tableState = true
     var ticketPickerView: TicketPickerView?
+    var checkView: CheckView?
     
     // MARK: UI
     lazy var infoLabel: UILabel = {
@@ -143,12 +144,42 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
         let matched = tickets[index].check(priceNumbers: Ticket.generateRandomNumber(maxValue: Constant.maxNumber, count: Constant.priceCount))
         model.addBalance(Constant.ticketReward[matched])
         update()
+        
+        checkView = CheckView(frame: CGRect.init(x: 50, y: 50, width: self.frame.size.width - 100, height: 200), ticket: tickets[index])
+        checkView!.delegate = self
+        self.addSubview(checkView!)
     }
     
     func update() {
         goldLabel.text = String.init(format: "存款： %d", model.balance)
+        // before i work out on limit of number of cells displayed at the same time, this may cause performance spike
+        // so, commented out at the moment...
+//        reloadTable(tableView: historyTableView, animated: !tableState)
+//        reloadTable(tableView: ticketTableView, animated: tableState)
         historyTableView.reloadData()
         ticketTableView.reloadData()
+    }
+    
+    func reloadTable(tableView: UITableView, animated: Bool) {
+        tableView.reloadData()
+        if animated {
+            let cells = tableView.visibleCells
+            let tableHeight: CGFloat = tableView.bounds.size.height
+            
+            for i in cells {
+                let cell: UITableViewCell = i as UITableViewCell
+                cell.transform = CGAffineTransform(translationX: 0, y: tableHeight)
+            }
+            
+            var index = 0
+            for i in cells {
+                let cell: UITableViewCell = i as UITableViewCell
+                UIView.animate(withDuration: 1.5, delay: 0.05 * Double(index), usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
+                    cell.transform = CGAffineTransform(translationX: 0, y: 0);
+                }, completion: nil)
+                index += 1
+            }
+        }
     }
     
     // MARK: UITableViewDataSource
@@ -168,11 +199,12 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
         if tableView == historyTableView {
             let cell = tableView.dequeueReusableCell(withIdentifier: "historyCell") as! ListCell
             let tickets = model.getTicketHistory()
+            let count = tickets.count - 1 // sort starting from latest
             cell.serialLabel.text = String(indexPath.row)
-            cell.infoLabel.text = String.init(format: "中獎 %d 元", Constant.ticketReward[tickets[indexPath.row].matchedIndex.count])
+            cell.infoLabel.text = String.init(format: "中獎 %d 元", Constant.ticketReward[tickets[count-indexPath.row].matchedIndex.count])
             cell.infoLabel.sizeToFit()
-            cell.setupLabelTitle(tickets[indexPath.row])
-            cell.checkButton.setTitle(tickets[indexPath.row].timeString, for: .normal)
+            cell.setupLabelTitle(tickets[count-indexPath.row])
+            cell.checkButton.setTitle(tickets[count-indexPath.row].timeString, for: .normal)
             cell.checkButton.setTitleColor(#colorLiteral(red: 0.1764705926, green: 0.4980392158, blue: 0.7568627596, alpha: 1), for: .normal)
             cell.checkButton.isEnabled = false
             return cell
@@ -198,12 +230,43 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
         model.addTicket(ticket)
         model.addBalance(-Constant.ticketPrice)
         update()
-        ticketPickerView!.removeFromSuperview()
-        ticketPickerView = nil
+        
+        UIView.animate(withDuration: 1.0, delay: 0.1, options: .curveEaseIn, animations: {
+            let frame = self.ticketPickerView!.frame
+            self.ticketPickerView!.frame = CGRect(x: frame.origin.x, y: frame.origin.y - self.frame.size.height, width: frame.size.width, height: frame.size.height)
+        }, completion: { _ in
+            self.ticketPickerView!.removeFromSuperview()
+            self.ticketPickerView = nil
+            
+            if (!self.tableState) {
+                self.tableState = !self.tableState
+                self.ticketSwitch.isSelected = true
+                self.historySwitch.isSelected = false
+                self.animatedSwitchTableView(1)
+            }
+        })
     }
     
     func didCanceled() {
         ticketPickerView!.removeFromSuperview()
         ticketPickerView = nil
+    }
+    
+    // MARK: CheckDelegate
+    func didConfirmed() {
+        UIView.animate(withDuration: 1.0, delay: 0.1, options: .curveEaseIn, animations: {
+            let frame = self.checkView!.frame
+            self.checkView!.frame = CGRect(x: frame.origin.x - self.frame.size.width, y: frame.origin.y, width: frame.size.width, height: frame.size.height)
+        }, completion: { _ in
+            self.checkView!.removeFromSuperview()
+            self.checkView = nil
+            
+            if (self.tableState) {
+                self.tableState = !self.tableState
+                self.ticketSwitch.isSelected = false
+                self.historySwitch.isSelected = true
+                self.animatedSwitchTableView(-1)
+            }
+        })
     }
 }

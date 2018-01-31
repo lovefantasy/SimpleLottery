@@ -127,3 +127,8 @@ class TicketPickerView: UIView {
         }
     }
 }
+
+public protocol TicketPickerDelegate {
+    func didConfirmSelectedTicket(selectedNumbers: [Int])
+    func didCanceled()
+}
