@@ -9,7 +9,11 @@
 import Foundation
 
 class Player {
-    var timeTag: Int32
+    var timeTag: Int32 {
+        didSet {
+            save()
+        }
+    }
     var balance: Int {
         didSet {
             save()
@@ -34,6 +38,10 @@ class Player {
         data.set(balance, forKey: "balance")
         data.set(timeTag, forKey: "timeTag")
         data.synchronize()
+    }
+    
+    func update() {
+        self.timeTag = Date.currentDate()
     }
     
     func addTicket(_ ticket: Ticket) {

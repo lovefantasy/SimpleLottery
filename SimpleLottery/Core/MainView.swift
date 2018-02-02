@@ -13,6 +13,7 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
     var model: Player
     var heartbeat = Timer()
     var tableState = true
+    var isFreeTicket = false
     var ticketPickerView: TicketPickerView?
     var checkView: CheckView?
     
@@ -28,6 +29,12 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
         label.textColor = #colorLiteral(red: 0.9254902005, green: 0.2352941185, blue: 0.1019607857, alpha: 1)
         label.textAlignment = .center
         return label
+    }()
+    lazy var freeButton: UIButton = {
+        let button = UIButton(frame: CGRect.init(x: 20, y: 80, width: 140, height: 30))
+        button.setTitle("免費領取", for: .normal)
+        button.setTitleColor(#colorLiteral(red: 0.1764705926, green: 0.4980392158, blue: 0.7568627596, alpha: 1), for: .normal)
+        return button
     }()
     lazy var buyButton: UIButton = {
         let button = UIButton(frame: CGRect.init(x: 20, y: 120, width: 140, height: 30))
@@ -84,22 +91,46 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
         self.addSubview(ticketSwitch)
         self.addSubview(historySwitch)
         self.addSubview(buyButton)
+        self.addSubview(freeButton)
         
+        // setup player info
+        freeButton.setTitleColor(#colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1), for: .disabled)
+        updateFreeButton()
         goldLabel.text = String.init(format: "存款： %d", model.balance)
         
         ticketSwitch.isSelected = true
         ticketSwitch.addTarget(self, action: #selector(switchTableView(_:)), for: .touchUpInside)
         historySwitch.addTarget(self, action: #selector(switchTableView(_:)), for: .touchUpInside)
         buyButton.addTarget(self, action: #selector(popTicketPicker), for: .touchUpInside)
+        freeButton.addTarget(self, action: #selector(popFreeTicketPicker), for: .touchUpInside)
+        
+        historyTableView.allowsSelection = false
+        ticketTableView.allowsSelection = false
         
         heartbeat = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(timerHeartbeat), userInfo: nil, repeats: true)
     }
     
+    func updateFreeButton() {
+        let today = Date.currentDate()
+        if today == model.timeTag {
+            freeButton.isEnabled = false
+        } else {
+            freeButton.isEnabled = true
+        }
+    }
+    
+    @objc func popFreeTicketPicker() {
+        isFreeTicket = true
+        ticketPickerView = TicketPickerView(frame: CGRect.init(x: 10, y: 50, width: self.frame.size.width-20, height: (self.frame.size.width-20) * 0.6))
+        ticketPickerView!.delegate = self
+        self.addSubview(ticketPickerView!)
+    }
+    
     @objc func popTicketPicker() {
-//        guard model.balance >= Constant.ticketPrice else {
-//            print("balance not enough")
-//            return
-//        }
+        guard model.balance >= Constant.ticketPrice else {
+            print("balance not enough")
+            return
+        }
         ticketPickerView = TicketPickerView(frame: CGRect.init(x: 10, y: 50, width: self.frame.size.width-20, height: (self.frame.size.width-20) * 0.6))
         ticketPickerView!.delegate = self
         self.addSubview(ticketPickerView!)
@@ -107,7 +138,11 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
     
     @objc func timerHeartbeat() {
         let time = Date.currentDayTime()
-        infoLabel.text = String.init(format: "下次開獎 %d:%02d:%02d", (24-time.hour)%24, (60-time.minute)%60, (60-time.second)%60)
+        infoLabel.text = String.init(format: "下次開獎 %d:%02d:%02d", (23-time.hour)%24, (60-time.minute)%60, (60-time.second)%60)
+        if time.minute == 0 && time.second == 0 {
+            updateFreeButton()
+            updateBalanceAndTable()
+        }
     }
     
     @objc func switchTableView(_ sender: UIButton) {
@@ -143,14 +178,14 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
         }
         let matched = tickets[index].check(priceNumbers: Ticket.generateRandomNumber(maxValue: Constant.maxNumber, count: Constant.priceCount))
         model.addBalance(Constant.ticketReward[matched])
-        update()
+        updateBalanceAndTable()
         
         checkView = CheckView(frame: CGRect.init(x: 50, y: 50, width: self.frame.size.width - 100, height: 200), ticket: tickets[index])
         checkView!.delegate = self
         self.addSubview(checkView!)
     }
     
-    func update() {
+    func updateBalanceAndTable() {
         goldLabel.text = String.init(format: "存款： %d", model.balance)
         // before i work out on limit of number of cells displayed at the same time, this may cause performance spike
         // so, commented out at the moment...
@@ -217,7 +252,8 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
             cell.setupLabelTitle(tickets[indexPath.row])
             cell.checkButton.setTitle("兌獎", for: .normal)
             cell.checkButton.setTitleColor(#colorLiteral(red: 0.9372549057, green: 0.3490196168, blue: 0.1921568662, alpha: 1), for: .normal)
-            // cell.checkButton.isEnabled = tickets[indexPath.row].timeValid
+            cell.checkButton.setTitleColor(#colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1), for: .disabled)
+            cell.checkButton.isEnabled = tickets[indexPath.row].timeValid
             cell.checkButton.tag = 10000 + indexPath.row
             cell.checkButton.addTarget(self, action: #selector(checkButtonTapped(_:)), for: .touchUpInside)
             return cell
@@ -228,8 +264,13 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
     func didConfirmSelectedTicket(selectedNumbers: [Int]) {
         let ticket = Ticket(selectedNumbers: selectedNumbers, timeTag: Date.currentDate())
         model.addTicket(ticket)
-        model.addBalance(-Constant.ticketPrice)
-        update()
+        if isFreeTicket {
+            isFreeTicket = false
+            model.update()
+        } else {
+            model.addBalance(-Constant.ticketPrice)
+        }
+        updateBalanceAndTable()
         
         UIView.animate(withDuration: 1.0, delay: 0.1, options: .curveEaseIn, animations: {
             let frame = self.ticketPickerView!.frame
