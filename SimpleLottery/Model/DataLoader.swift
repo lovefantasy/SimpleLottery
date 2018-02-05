@@ -11,6 +11,7 @@ import CoreData
 import UIKit
 
 class DataLoader {
+    // MARK: Ticket database
     static func addTicket(ticket: Ticket) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let context = appDelegate.persistentContainer.viewContext
@@ -44,7 +45,7 @@ class DataLoader {
         do {
             try context.save()
         } catch {
-            print("Failed saving")
+            print("failed saving ticket")
         }
     }
     
@@ -116,5 +117,63 @@ class DataLoader {
         }
         
         return tickets
+    }
+    
+    // MARK: price database
+    static func addPrice(timeTag: Int32, priceNum: Int64) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let context = appDelegate.persistentContainer.viewContext
+        
+        let request = NSFetchRequest<NSFetchRequestResult> (entityName: "Prices")
+        request.returnsObjectsAsFaults = false
+        request.predicate = NSPredicate(format: "timeTag == %d", timeTag)
+        
+        do {
+            let result = try context.fetch(request)
+            guard result.count == 0 else {
+                print("unique price already exist in database:")
+                return
+            }
+        } catch {
+            print("add price failed at fetching stage")
+        }
+        
+        let entity = NSEntityDescription.entity(forEntityName: "Prices", in: context)
+        let newPrice = NSManagedObject(entity: entity!, insertInto: context)
+        
+        newPrice.setValue(timeTag, forKey: "timeTag")
+        newPrice.setValue(priceNum, forKey: "priceNum")
+        
+        do {
+            try context.save()
+        } catch {
+            print("failed saving price")
+        }
+    }
+    
+    static func fetchPrice(timeTag: Int32) -> Int64 {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let context = appDelegate.persistentContainer.viewContext
+        
+        let request = NSFetchRequest<NSFetchRequestResult> (entityName: "Prices")
+        request.returnsObjectsAsFaults = false
+        
+        do {
+            let result = try context.fetch(request)
+            
+            if result.count == 0 {
+                print("no price for date \(timeTag).")
+                return 0
+            } else {
+                print("price exist for date \(timeTag)")
+                for data in result as! [NSManagedObject] {
+                    let pn = data.value(forKey: "priceNum") as! Int64
+                    return pn
+                }
+            }
+        } catch {
+            print("failed to fetch prices")
+        }
+        return 0
     }
 }

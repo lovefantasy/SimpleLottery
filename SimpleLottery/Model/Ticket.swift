@@ -25,22 +25,14 @@ class Ticket {
     }
     
     var hashedPriceNumbers: Int64 {
-        var r: Int64 = 0
         guard let p = priceNumbers else {
             return 0
         }
-        for i in 0..<p.count {
-            r += Int64(p[i]) * Int64(Constant.maxNumber ^^ i)
-        }
-        return r
+        return hashCode(array: p)
     }
     
     var hashedSelectedNumbers: Int64 {
-        var r: Int64 = 0
-        for i in 0..<selectedNumbers.count {
-            r += Int64(selectedNumbers[i]) * Int64(Constant.maxNumber ^^ i)
-        }
-        return r
+        return hashCode(array: selectedNumbers)
     }
     
     var hashedMatchedIndex: Int32 {
@@ -59,24 +51,10 @@ class Ticket {
     init(hashedSelectedNumbers: Int64, hashedPriceNumbers: Int64, hashedMatchedIndex: Int32, timeTag: Int32, isChecked: Bool) {
         self.isChecked = isChecked
         self.timeTag = timeTag
-        self.selectedNumbers = []
-        
-        var sn = hashedSelectedNumbers
-        while sn > 1 {
-            let num = (sn - 1) % Int64(Constant.maxNumber) + 1
-            selectedNumbers.append(Int(num))
-            sn = sn / Int64(Constant.maxNumber)
-        }
-        
+        self.selectedNumbers = unhashCode(code: hashedSelectedNumbers)
+
         if isChecked {
-            var pn = hashedPriceNumbers
-            var pa: [Int] = []
-            while pn > 1 {
-                let num = (pn - 1) % Int64(Constant.maxNumber) + 1
-                pa.append(Int(num))
-                pn = pn / Int64(Constant.maxNumber)
-            }
-            priceNumbers = pa
+            priceNumbers = unhashCode(code: hashedPriceNumbers)
             
             var mi = hashedMatchedIndex
             while mi > 1 {
@@ -84,6 +62,17 @@ class Ticket {
                 matchedIndex.append(Int(num))
                 mi = mi / Int32(Constant.priceCount)
             }
+        }
+    }
+    
+    func check() -> Int {
+        let price = DataLoader.fetchPrice(timeTag: timeTag)
+        if price == 0 {
+            let randomPrice = Ticket.generateRandomNumber(maxValue: Constant.maxNumber, count: Constant.priceCount)
+            DataLoader.addPrice(timeTag: timeTag, priceNum: hashCode(array: randomPrice))
+            return check(priceNumbers: randomPrice)
+        } else {
+            return check(priceNumbers: unhashCode(code: price))
         }
     }
     

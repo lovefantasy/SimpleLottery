@@ -42,6 +42,12 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
         button.setTitleColor(#colorLiteral(red: 0.1764705926, green: 0.4980392158, blue: 0.7568627596, alpha: 1), for: .normal)
         return button
     }()
+//    lazy var debugButton: UIButton = {
+//        let button = UIButton(frame: CGRect.init(x: 20, y: 160, width: 140, height: 30))
+//        button.setTitle("debug", for: .normal)
+//        button.setTitleColor(#colorLiteral(red: 0.1764705926, green: 0.4980392158, blue: 0.7568627596, alpha: 1), for: .normal)
+//        return button
+//    }()
     lazy var ticketSwitch: UIButton = {
         let button = UIButton(frame: CGRect.init(x: 0, y: self.frame.size.height * 0.4 - 30, width: self.frame.size.width / 2.0, height: 30))
         button.setTitle("彩票列表", for: .normal)
@@ -92,6 +98,7 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
         self.addSubview(historySwitch)
         self.addSubview(buyButton)
         self.addSubview(freeButton)
+//        self.addSubview(debugButton)
         
         // setup player info
         freeButton.setTitleColor(#colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1), for: .disabled)
@@ -103,6 +110,7 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
         historySwitch.addTarget(self, action: #selector(switchTableView(_:)), for: .touchUpInside)
         buyButton.addTarget(self, action: #selector(popTicketPicker), for: .touchUpInside)
         freeButton.addTarget(self, action: #selector(popFreeTicketPicker), for: .touchUpInside)
+//        debugButton.addTarget(self, action: #selector(debugButtonEvent), for: .touchUpInside)
         
         historyTableView.allowsSelection = false
         ticketTableView.allowsSelection = false
@@ -118,6 +126,11 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
             freeButton.isEnabled = true
         }
     }
+    
+//    @objc func debugButtonEvent() {
+//        let ticket = Ticket(selectedNumbers: Ticket.generateRandomNumber(maxValue: Constant.maxNumber, count: Constant.priceCount), timeTag: 20180204)
+//        model.addTicket(ticket)
+//    }
     
     @objc func popFreeTicketPicker() {
         isFreeTicket = true
@@ -176,7 +189,7 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
             print("attempt to check index: \(index), but only \(tickets.count) tickets available")
             return
         }
-        let matched = tickets[index].check(priceNumbers: Ticket.generateRandomNumber(maxValue: Constant.maxNumber, count: Constant.priceCount))
+        let matched = tickets[index].check()
         model.addBalance(Constant.ticketReward[matched])
         updateBalanceAndTable()
         
@@ -267,6 +280,7 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
         if isFreeTicket {
             isFreeTicket = false
             model.update()
+            updateFreeButton()
         } else {
             model.addBalance(-Constant.ticketPrice)
         }

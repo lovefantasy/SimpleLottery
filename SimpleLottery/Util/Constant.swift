@@ -9,8 +9,31 @@
 import Foundation
 
 infix operator ^^ : MultiplicationPrecedence
+
 func ^^ (radix: Int, power: Int) -> Int {
     return Int(pow(Double(radix), Double(power)))
+}
+
+// overflow protection does not exist (lazy face), use with caution
+func hashCode(array: [Int]) -> Int64 {
+    var result: Int64 = 0
+    for i in 0..<array.count {
+        result += Int64(array[i]) * Int64(Constant.maxNumber ^^ i)
+    }
+    return result
+}
+
+func unhashCode(code: Int64) -> [Int] {
+    var result: [Int] = []
+    var p = code
+    
+    while p > 1 {
+        let num = (p - 1) % Int64(Constant.maxNumber) + 1
+        result.append(Int(num))
+        p = p / Int64(Constant.maxNumber)
+    }
+    
+    return result
 }
 
 struct Constant {
