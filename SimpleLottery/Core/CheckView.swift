@@ -78,7 +78,7 @@ class CheckView: UIView {
     
     func animate(index: Int) {
         guard index < Constant.priceCount else {
-            UIView.animate(withDuration: 1.5, delay: 0.2, usingSpringWithDamping: 0.2, initialSpringVelocity: 10, options: .curveLinear, animations: {
+            UIView.animate(withDuration: 0.8, delay: 0.2, usingSpringWithDamping: 0.2, initialSpringVelocity: 10, options: .curveLinear, animations: {
                 for i in self.ticket.matchedIndex {
                     let bounds = self.ticketLabels[i].bounds
                     self.ticketLabels[i].bounds = CGRect(x: bounds.origin.x - 3, y: bounds.origin.y - 3, width: bounds.size.width + 6, height: bounds.size.height + 6)
@@ -89,7 +89,7 @@ class CheckView: UIView {
             })
             return
         }
-        UIView.transition(from: coveredView[index], to: priceLabels[index], duration: 1.5, options: .transitionFlipFromRight, completion: { _ in
+        UIView.transition(from: coveredView[index], to: priceLabels[index], duration: 0.8, options: .transitionFlipFromRight, completion: { _ in
             self.animate(index: index+1)
         })
     }

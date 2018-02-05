@@ -286,7 +286,7 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
         }
         updateBalanceAndTable()
         
-        UIView.animate(withDuration: 1.0, delay: 0.1, options: .curveEaseIn, animations: {
+        UIView.animate(withDuration: 0.5, delay: 0.1, options: .curveEaseIn, animations: {
             let frame = self.ticketPickerView!.frame
             self.ticketPickerView!.frame = CGRect(x: frame.origin.x, y: frame.origin.y - self.frame.size.height, width: frame.size.width, height: frame.size.height)
         }, completion: { _ in
@@ -309,7 +309,7 @@ class MainView: UIView, UITableViewDataSource, UITableViewDelegate, TicketPicker
     
     // MARK: CheckDelegate
     func didConfirmed() {
-        UIView.animate(withDuration: 1.0, delay: 0.1, options: .curveEaseIn, animations: {
+        UIView.animate(withDuration: 0.5, delay: 0.1, options: .curveEaseIn, animations: {
             let frame = self.checkView!.frame
             self.checkView!.frame = CGRect(x: frame.origin.x - self.frame.size.width, y: frame.origin.y, width: frame.size.width, height: frame.size.height)
         }, completion: { _ in
